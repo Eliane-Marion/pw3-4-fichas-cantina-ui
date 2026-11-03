@@ -1,0 +1,146 @@
+.page-head {
+  margin-bottom: 1.25rem;
+}
+
+.voltar {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  color: var(--primaria);
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.voltar:hover {
+  text-decoration: underline;
+}
+
+.page-head h2 {
+  margin: 0;
+  font-size: 1.55rem;
+  color: var(--texto);
+}
+
+.page-head p {
+  margin: 0.25rem 0 0;
+  color: var(--texto-suave);
+  font-size: 0.95rem;
+}
+
+.form-card {
+  background: var(--superficie);
+  border: 1px solid var(--borda);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 46rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  box-shadow: 0 22px 45px -38px rgba(15, 23, 42, 0.65);
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.campo label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--texto);
+}
+
+.obrigatorio {
+  color: var(--erro);
+}
+
+.linha {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.invalido {
+  border-color: var(--erro) !important;
+  box-shadow: 0 0 0 3px var(--erro-fundo) !important;
+}
+
+.msg-erro {
+  margin: 0;
+  color: var(--erro);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.dica-campo {
+  margin: 0;
+  color: var(--texto-suave);
+  font-size: 0.78rem;
+}
+
+.alerta-erro {
+  margin: 0;
+  padding: 0.7rem 0.9rem;
+  border-radius: 0.6rem;
+  background: var(--erro-fundo);
+  color: var(--erro);
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.form-acoes {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--borda);
+  margin-top: 0.35rem;
+}
+
+.estado {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  padding: 3rem 1rem;
+  background: var(--superficie);
+  border: 1px dashed var(--borda);
+  border-radius: 1rem;
+  color: var(--texto-suave);
+  max-width: 46rem;
+}
+
+.spinner {
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  border: 2px solid var(--borda);
+  border-top-color: var(--primaria);
+  animation: girar 0.8s linear infinite;
+}
+
+@keyframes girar {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 560px) {
+  .linha {
+    grid-template-columns: 1fr;
+  }
+
+  .form-card {
+    padding: 1.1rem;
+  }
+
+  .form-acoes {
+    flex-direction: column-reverse;
+  }
+
+  .form-acoes .btn {
+    width: 100%;
+    text-align: center;
+  }
+}
