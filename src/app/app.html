@@ -1,0 +1,21 @@
+<div class="app-shell">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" routerLink="/" aria-label="Ir para a listagem de fichas">
+        <span class="brand-icon" aria-hidden="true">🍽️</span>
+        <div>
+          <h1>Sistema de Gestão Escolar</h1>
+          <p>Controle de Fichas da Cantina</p>
+        </div>
+      </a>
+
+      <a class="btn btn-primary" routerLink="/novo">➕ Novo Registro</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <router-outlet />
+  </main>
+</div>
+
+<app-toast />

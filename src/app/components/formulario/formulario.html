@@ -1,0 +1,129 @@
+<section class="page-head">
+  <div>
+    <a class="voltar" routerLink="/">← Voltar para a listagem</a>
+    <h2>{{ editando() ? 'Editar ficha do aluno' : 'Nova ficha de aluno' }}</h2>
+    <p>
+      {{
+        editando()
+          ? 'Atualize os dados cadastrais e o saldo da ficha da cantina.'
+          : 'Cadastre uma nova ficha com saldo inicial para a cantina.'
+      }}
+    </p>
+  </div>
+</section>
+
+@if (carregando()) {
+  <div class="estado">
+    <span class="spinner" aria-hidden="true"></span>
+    Carregando dados da ficha...
+  </div>
+} @else {
+  <form class="form-card" [formGroup]="form" (ngSubmit)="salvar()" novalidate>
+    <div class="campo">
+      <label for="nomeAluno">Nome do aluno <span class="obrigatorio">*</span></label>
+      <input
+        id="nomeAluno"
+        type="text"
+        formControlName="nomeAluno"
+        maxlength="60"
+        placeholder="Ex.: Maria Oliveira"
+        autocomplete="name"
+        [class.invalido]="campoInvalido('nomeAluno')"
+      />
+      @if (campoInvalido('nomeAluno')) {
+        <p class="msg-erro">
+          @if (form.controls.nomeAluno.hasError('required')) {
+            O nome do aluno é obrigatório.
+          } @else if (form.controls.nomeAluno.hasError('minlength')) {
+            Informe ao menos 3 caracteres.
+          } @else if (form.controls.nomeAluno.hasError('maxlength')) {
+            O nome deve ter no máximo 60 caracteres.
+          }
+        </p>
+      }
+    </div>
+
+    <div class="linha">
+      <div class="campo">
+        <label for="matricula">Matrícula <span class="obrigatorio">*</span></label>
+        <input
+          id="matricula"
+          type="number"
+          formControlName="matricula"
+          min="1"
+          step="1"
+          placeholder="Ex.: 2024001"
+          [class.invalido]="campoInvalido('matricula')"
+        />
+        @if (campoInvalido('matricula')) {
+          <p class="msg-erro">
+            @if (form.controls.matricula.hasError('required')) {
+              A matrícula é obrigatória.
+            } @else if (form.controls.matricula.hasError('min')) {
+              A matrícula deve ser maior que zero.
+            }
+          </p>
+        }
+        @if (editando()) {
+          <p class="dica-campo">A matrícula não pode ser alterada após o cadastro.</p>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="saldo">
+          {{ editando() ? 'Saldo (R$)' : 'Saldo inicial (R$)' }}
+          <span class="obrigatorio">*</span>
+        </label>
+        <input
+          id="saldo"
+          type="number"
+          formControlName="saldo"
+          min="0"
+          step="0.01"
+          placeholder="0,00"
+          [class.invalido]="campoInvalido('saldo')"
+        />
+        @if (campoInvalido('saldo')) {
+          <p class="msg-erro">
+            @if (form.controls.saldo.hasError('required')) {
+              O saldo é obrigatório.
+            } @else if (form.controls.saldo.hasError('min')) {
+              O saldo não pode ser negativo.
+            }
+          </p>
+        }
+      </div>
+    </div>
+
+    <div class="campo">
+      <label for="status">Status <span class="obrigatorio">*</span></label>
+      <select
+        id="status"
+        formControlName="status"
+        [class.invalido]="campoInvalido('status')"
+      >
+        <option value="ATIVO">🟢 Ativo — pode comprar na cantina</option>
+        <option value="INATIVO">🔴 Inativo — bloqueado para compras</option>
+      </select>
+      @if (campoInvalido('status')) {
+        <p class="msg-erro">Selecione um status.</p>
+      }
+      @if (editando()) {
+        <p class="dica-campo">
+          O status é alterado pelo botão "Excluir" da listagem (inativa a ficha).
+        </p>
+      }
+    </div>
+
+    @if (erro(); as mensagem) {
+      <p class="alerta-erro" role="alert">⚠️ {{ mensagem }}</p>
+    }
+
+    <div class="form-acoes">
+      <a class="btn btn-ghost" routerLink="/">Cancelar</a>
+      <button type="submit" class="btn btn-primary" [disabled]="salvando()">
+        {{ salvando() ? 'Salvando...' : '💾 Salvar Registro' }}
+      </button>
+    </div>
+  </form>
+}

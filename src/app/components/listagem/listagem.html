@@ -1,0 +1,190 @@
+<section class="page-head">
+  <div>
+    <h2>Fichas da Cantina</h2>
+    <p>Gerencie o saldo e o status das carteirinhas dos alunos.</p>
+  </div>
+  <a class="btn btn-primary" routerLink="/novo">➕ Novo Registro</a>
+</section>
+
+<section class="resumo" aria-label="Resumo das fichas">
+  <article class="resumo-card">
+    <span class="resumo-rotulo">Total de alunos</span>
+    <strong class="resumo-valor">{{ alunos().length }}</strong>
+  </article>
+  <article class="resumo-card">
+    <span class="resumo-rotulo">Fichas ativas</span>
+    <strong class="resumo-valor resumo-ativo">{{ totalAtivos() }}</strong>
+  </article>
+  <article class="resumo-card">
+    <span class="resumo-rotulo">Saldo em circulação</span>
+    <strong class="resumo-valor resumo-saldo">{{ saldoTotal() | currency: 'BRL' }}</strong>
+  </article>
+</section>
+
+<div class="toolbar">
+  <div class="busca">
+    <span class="busca-icone" aria-hidden="true">🔍</span>
+    <input
+      type="search"
+      placeholder="Buscar por nome, matrícula ou status..."
+      aria-label="Buscar fichas"
+      [value]="filtro()"
+      (input)="atualizarFiltro($event)"
+    />
+  </div>
+  <button type="button" class="btn btn-ghost" (click)="carregar()" [disabled]="carregando()">
+    🔄 Atualizar
+  </button>
+</div>
+
+@if (carregando()) {
+  <div class="estado">
+    <span class="spinner" aria-hidden="true"></span>
+    Carregando fichas...
+  </div>
+} @else if (alunos().length === 0) {
+  <div class="estado estado-vazio">
+    <span class="estado-icone" aria-hidden="true">🍽️</span>
+    <h3>Nenhuma ficha cadastrada</h3>
+    <p>Cadastre a primeira ficha da cantina para começar.</p>
+    <a class="btn btn-primary" routerLink="/novo">➕ Cadastrar aluno</a>
+  </div>
+} @else {
+  <div class="tabela-wrapper">
+    <table class="tabela">
+      <thead>
+        <tr>
+          <th scope="col">ID</th>
+          <th scope="col">Nome do aluno</th>
+          <th scope="col">Matrícula</th>
+          <th scope="col">Saldo</th>
+          <th scope="col">Status</th>
+          <th scope="col" class="col-acoes">Ações</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (aluno of alunosFiltrados(); track aluno.idAluno) {
+          <tr>
+            <td class="mono">#{{ aluno.idAluno }}</td>
+            <td class="nome">{{ aluno.nomeAluno }}</td>
+            <td class="mono">{{ aluno.matricula }}</td>
+            <td class="saldo" [class.saldo-baixo]="aluno.saldo < 10">
+              {{ aluno.saldo | currency: 'BRL' }}
+            </td>
+            <td>
+              <span
+                class="badge"
+                [class.badge-ativo]="aluno.status === 'ATIVO'"
+                [class.badge-inativo]="aluno.status !== 'ATIVO'"
+              >
+                {{ aluno.status === 'ATIVO' ? '🟢 ATIVO' : '🔴 INATIVO' }}
+              </span>
+            </td>
+            <td>
+              <div class="acoes">
+                <button
+                  type="button"
+                  class="btn btn-acao btn-debitar"
+                  title="Regra de negócio: debitar saldo"
+                  [disabled]="aluno.status !== 'ATIVO'"
+                  (click)="abrirOperacao(aluno, 'debitar')"
+                >
+                  ⚡ Debitar
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-acao btn-recarregar"
+                  title="Recarregar saldo"
+                  (click)="abrirOperacao(aluno, 'recarregar')"
+                >
+                  💰 Recarregar
+                </button>
+                <a class="btn btn-acao btn-editar" [routerLink]="['/editar', aluno.idAluno]">
+                  ✏️ Editar
+                </a>
+                <button
+                  type="button"
+                  class="btn btn-acao btn-excluir"
+                  [title]="
+                    aluno.status === 'ATIVO'
+                      ? 'Excluir / inativar ficha'
+                      : 'Ficha já está inativa'
+                  "
+                  [disabled]="aluno.status !== 'ATIVO'"
+                  (click)="excluir(aluno)"
+                >
+                  🗑️ Excluir
+                </button>
+              </div>
+            </td>
+          </tr>
+        } @empty {
+          <tr>
+            <td colspan="6" class="sem-resultado">
+              Nenhuma ficha encontrada para "<strong>{{ filtro() }}</strong>".
+              <button type="button" class="link" (click)="filtro.set('')">Limpar busca</button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+}
+
+@if (operacao(); as op) {
+  @if (alunoSelecionado(); as aluno) {
+    <div class="modal-backdrop" (click)="fecharModal()">
+      <div
+        class="modal"
+        role="dialog"
+        aria-modal="true"
+        [attr.aria-label]="op === 'debitar' ? 'Debitar saldo' : 'Recarregar saldo'"
+        (click)="$event.stopPropagation()"
+      >
+        <h3 class="modal-titulo">
+          {{ op === 'debitar' ? '⚡ Debitar saldo' : '💰 Recarregar saldo' }}
+        </h3>
+        <p class="modal-info">
+          <strong>{{ aluno.nomeAluno }}</strong> · Matrícula {{ aluno.matricula }}<br />
+          Saldo atual: <strong>{{ aluno.saldo | currency: 'BRL' }}</strong>
+        </p>
+
+        <label class="modal-campo" for="valorOperacao">Valor (R$)</label>
+        <input
+          id="valorOperacao"
+          type="number"
+          min="0.01"
+          step="0.01"
+          inputmode="decimal"
+          placeholder="0,00"
+          [value]="valor() ?? ''"
+          (input)="atualizarValor($event)"
+          (keyup.enter)="confirmarOperacao()"
+        />
+
+        @if (erroModal(); as mensagem) {
+          <p class="modal-erro">⚠️ {{ mensagem }}</p>
+        }
+
+        <div class="modal-acoes">
+          <button
+            type="button"
+            class="btn btn-ghost"
+            [disabled]="processando()"
+            (click)="fecharModal()"
+          >
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary"
+            [disabled]="processando()"
+            (click)="confirmarOperacao()"
+          >
+            {{ processando() ? 'Processando...' : 'Confirmar' }}
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+}
